@@ -9,26 +9,33 @@
 </head>
 <body>
     <script src="static/bootstrap/dist/js/bootstrap.min.js"></script>
-    <div class="nav-box">
-        <button id="upload-btn" class="toggleButton" onclick="showUploadBlock('upload-block')" data-target="upload-block">Загрузить файл</button>
-        <button id="global-stat-btn" class="toggleButton" onclick="showGlobalStat('global-stat-block')" data-target="global-stat-block">Общая статистика комментариев</button>
-        <button id="sep-stat-btn" class="toggleButton" onclick="showSepStat('sep-stat-block')" data-target="sep-stat-block">Cтатистика по вебинарам</button>
-        <button id="login-btn" class="toggleButton" onclick="showLogin('login-block')" data-target="login-block">Вход в аккаунт</button>
-    </div>
-    <div class="content-box">
-        <div class="block" id="upload-block">
-            <div class="load-box">
-                <form id="upload-form">
-                    <label class="slice">
-                        <input class="form-control" type="file" id="fileInput" accept="upload/*" required>
-                    </label>
-                    <button class="btn btn-outline-dark" type="submit">Загрузить</button>
-                </form>
-            </div>
+    <nav class="nav-box">
+        <ul>
+            <li>
+                <a href="#" onclick="showContent('home')">Главная</a>
+            </li>
+            <li>
+                <a href="#" onclick="showContent('upload-block')">Загрузить файл</a>
+            </li>
+            <li>
+                <a href="#" onclick="showContent('global-stat-block')">Общая статистика комментариев</a>
+            </li>
+            <li>
+                <a href="#" onclick="showContent('sep-stat-block')">Cтатистика по вебинарам</a>
+            </li>
+            <li>
+                <a href="#" onclick="showContent('login-block')">Вход в аккаунт</a>
+            </li>
+        </ul>
+    </nav>
+
+    <main id="main">
+        <div id="content">
+            <h2>
+                Добро пожаловать в сервис анализа вебинаров!
+            </h2>
         </div>
-        <div class="block" id="global-stat-block"></div>
-        <div class="block" id="sep-stat-block"></div>
-    </div>
+    </main>
 
     <div id="myModal" class="modal" tabindex="-1">
         <div class="modal-dialog">
@@ -45,12 +52,33 @@
             </div>
           </div>
         </div>
-      </div>
+    </div>
+        <div class="modal" id="login-block">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Регистрация</h2>
+                        <form class="form-control" action="/register" method="post">
+                            <input type="text" name="username" placeholder="Имя пользователя" required>
+                            <input type="password" name="password" placeholder="Пароль" required>
+                        </form>
+                        <button type="submit" class="btn-register">Зарегистрироваться</button>
+        
+                        <h2>Вход</h2>
+                        <form class="form-control" action="/login" method="post">
+                            <input type="text" name="username" placeholder="Имя пользователя" required>
+                            <input type="password" name="password" placeholder="Пароль" required>
+                        </form>
+                        <button type="submit" class="btn-login">Войти</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script src="static/script.js"></script>
+        <!--`const connectAPI = "http://127.0.0.1:8000";
+        const currentuserId = "none";
 
-    <script>
-        const connectAPI = "http://127.0.0.1:8000";
-
-        function showUploadBlock(targetId){
+        function showLogin(targetId) {
             var blocks = document.querySelectorAll('.block');
 
             blocks.forEach(function(block) {
@@ -59,123 +87,10 @@
 
             var targetBlock = document.getElementById(targetId);
             targetBlock.style.display = "block";
-
-            document.getElementById('uploadForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Предотвращаем стандартное поведение формы
-            
-            var fileInput = document.getElementById('fileInput');
-            var file = fileInput.files[0]; // Получаем выбранный файл
-            
-            var formData = new FormData(); // Создаем объект FormData для отправки данных
-            
-            formData.append('file', file); // Добавляем файл в FormData с ключом 'file'
-            
-            // Отправляем запрос POST на ваш API
-            fetch(connectAPI+"/upload", {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Ответ от сервера:', data);
-                if (data.success) {
-                    document.getElementById('myModal').style.display = "block";
-                    // Очищаем форму
-                    document.getElementById('uploadForm').reset();
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка при отправке запроса:', error);
-            });
-            });
         }
-
-        function showGlobalStat(targetId) {
-            var blocks = document.querySelectorAll('.block');
             
-            // Скрываем все блоки
-            blocks.forEach(function(block) {
-            block.style.display = 'none';
-            });
             
-            // Показываем только целевой блок
-            var targetBlock = document.getElementById(targetId);
-            targetBlock.style.display = 'block';
-
-            fetch(connectAPI+"/once-data", {
-                method: 'GET'
-            })
-            .then(response => response.json())
-            .then(data => {
-                
-                var host = document.getElementById(targetId);
-
-                var block = document.createElement('div');
-                block.className = 'img_block';
-
-                var img = document.createElement('img');
-                img.className = 'img_img';
-                img.src = data['path'];
-
-                var pred = document.createElement('p');
-                pred.className = 'prediction';
-                pred.textContent = data["data"];
-
-                block.appendChild(img);
-                block.appendChild(pred);
-
-                host.appendChild(block);
-            })
-            .catch(error => {
-                console.error('Ошибка при отправке запроса:', error);
-            });
-            
-        }
-
-        function showSepStat(targetId) {
-            // Получаем все блоки
-            var blocks = document.querySelectorAll('.block');
-            
-            // Скрываем все блоки
-            blocks.forEach(function(block) {
-            block.style.display = 'none';
-            });
-            
-            // Показываем только целевой блок
-            var targetBlock = document.getElementById(targetId);
-            targetBlock.style.display = 'block';
-
-            fetch(connectAPI+"/numeric-data", {
-                method: 'GET'
-            })
-            .then(response => response.json())
-            .then(data => {
-                var host = document.getElementById(targetId);
-
-                data.forEach(function(predict) {
-                    console.log(predict);
-
-                    var block = document.createElement('div');
-                    block.className = 'img_block';
-
-                    var img = document.createElement('img');
-                    img.className = 'img_img';
-                    img.src = predict['path'];
-
-                    var pred = document.createElement('p');
-                    pred.className = 'prediction';
-                    pred.textContent = predict["data"];
-
-                    block.appendChild(img);
-                    block.appendChild(pred);
-
-                    host.appendChild(block);
-
-                });
-            });
-            
-        }
-    </script>
+        }-->
 
 </body>
 </html>
