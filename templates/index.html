@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    <link href="static/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="static/style.css" rel="stylesheet">
+</head>
+<body>
+    <script src="static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <div class="nav-box">
+        <button id="upload-btn" class="toggleButton" onclick="showUploadBlock('upload-block')" data-target="upload-block">Загрузить файл</button>
+        <button id="global-stat-btn" class="toggleButton" onclick="showGlobalStat('global-stat-block')" data-target="global-stat-block">Общая статистика комментариев</button>
+        <button id="sep-stat-btn" class="toggleButton" onclick="showSepStat('sep-stat-block')" data-target="sep-stat-block">Cтатистика по вебинарам</button>
+        <button id="login-btn" class="toggleButton" onclick="showLogin('login-block')" data-target="login-block">Вход в аккаунт</button>
+    </div>
+    <div class="content-box">
+        <div class="block" id="upload-block">
+            <div class="load-box">
+                <form id="upload-form">
+                    <label class="slice">
+                        <input class="form-control" type="file" id="fileInput" accept="upload/*" required>
+                    </label>
+                    <button class="btn btn-outline-dark" type="submit">Загрузить</button>
+                </form>
+            </div>
+        </div>
+        <div class="block" id="global-stat-block"></div>
+        <div class="block" id="sep-stat-block"></div>
+    </div>
+
+    <div id="myModal" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Разметка времени</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <p>Modal body text goes here.</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <script>
+        const connectAPI = "http://127.0.0.1:8000";
+
+        function showUploadBlock(targetId){
+            var blocks = document.querySelectorAll('.block');
+
+            blocks.forEach(function(block) {
+                block.style.display = "none";
+            });
+
+            var targetBlock = document.getElementById(targetId);
+            targetBlock.style.display = "block";
+
+            document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Предотвращаем стандартное поведение формы
+            
+            var fileInput = document.getElementById('fileInput');
+            var file = fileInput.files[0]; // Получаем выбранный файл
+            
+            var formData = new FormData(); // Создаем объект FormData для отправки данных
+            
+            formData.append('file', file); // Добавляем файл в FormData с ключом 'file'
+            
+            // Отправляем запрос POST на ваш API
+            fetch(connectAPI+"/upload", {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Ответ от сервера:', data);
+                if (data.success) {
+                    document.getElementById('myModal').style.display = "block";
+                    // Очищаем форму
+                    document.getElementById('uploadForm').reset();
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при отправке запроса:', error);
+            });
+            });
+        }
+
+        function showGlobalStat(targetId) {
+            var blocks = document.querySelectorAll('.block');
+            
+            // Скрываем все блоки
+            blocks.forEach(function(block) {
+            block.style.display = 'none';
+            });
+            
+            // Показываем только целевой блок
+            var targetBlock = document.getElementById(targetId);
+            targetBlock.style.display = 'block';
+
+            fetch(connectAPI+"/once-data", {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                
+                var host = document.getElementById(targetId);
+
+                var block = document.createElement('div');
+                block.className = 'img_block';
+
+                var img = document.createElement('img');
+                img.className = 'img_img';
+                img.src = data['path'];
+
+                var pred = document.createElement('p');
+                pred.className = 'prediction';
+                pred.textContent = data["data"];
+
+                block.appendChild(img);
+                block.appendChild(pred);
+
+                host.appendChild(block);
+            })
+            .catch(error => {
+                console.error('Ошибка при отправке запроса:', error);
+            });
+            
+        }
+
+        function showSepStat(targetId) {
+            // Получаем все блоки
+            var blocks = document.querySelectorAll('.block');
+            
+            // Скрываем все блоки
+            blocks.forEach(function(block) {
+            block.style.display = 'none';
+            });
+            
+            // Показываем только целевой блок
+            var targetBlock = document.getElementById(targetId);
+            targetBlock.style.display = 'block';
+
+            fetch(connectAPI+"/numeric-data", {
+                method: 'GET'
+            })
+            .then(response => response.json())
+            .then(data => {
+                var host = document.getElementById(targetId);
+
+                data.forEach(function(predict) {
+                    console.log(predict);
+
+                    var block = document.createElement('div');
+                    block.className = 'img_block';
+
+                    var img = document.createElement('img');
+                    img.className = 'img_img';
+                    img.src = predict['path'];
+
+                    var pred = document.createElement('p');
+                    pred.className = 'prediction';
+                    pred.textContent = predict["data"];
+
+                    block.appendChild(img);
+                    block.appendChild(pred);
+
+                    host.appendChild(block);
+
+                });
+            });
+            
+        }
+    </script>
+
+</body>
+</html>
