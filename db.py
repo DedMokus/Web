@@ -2,7 +2,8 @@ from sqlalchemy import (Column, Integer, MetaData, Table,
                         create_engine, TIMESTAMP, TEXT, Boolean, Float, String)
 
 from databases import Database
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 DATABASE_URL = 'postgresql://postgres:postgres@localhost/vebinar_db'
 
@@ -27,15 +28,10 @@ vebinars = Table(
     Column("Опоздание", Boolean),
     Column("Выполнение задания", Boolean)
 )
+Base = declarative_base()
 
-users = Table(
-    "users",
-    metadata,
-    Column("User ID", Integer, primary_key=True),
-    Column("Name", String(50)),
-    Column("Password", String(50)),
-    Column("IsAdmin", Boolean)
-)
-
-database = Database(DATABASE_URL)
-
+class UserDB(Base):
+    __tablename__ = "users"
+    Username = Column(String, primary_key=True)
+    Password = Column(String)
+    IsAdmin = Column(Boolean)

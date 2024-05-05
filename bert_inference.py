@@ -2,7 +2,7 @@ import pandas as pd
 from transformers import pipeline
 import torch
 import tqdm
-from db import database, metadata, engine
+from db import  metadata, engine
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 classifier = pipeline("zero-shot-classification",

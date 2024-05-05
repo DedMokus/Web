@@ -182,9 +182,27 @@ function showContent(targetId) {
                 if (regPassword !== confirmPassword) {
                     registrationError.textContent = "Пароли не совпадают";
                 } else {
-                    // Здесь можно добавить логику отправки данных на сервер для регистрации
-                    alert("Регистрация успешна!");
-                    registrationError.textContent = "";
+                    var formData = {
+                        "username": regUsername,
+                        "password": regPassword
+                    };
+                    fetch(connectAPI+"/register", {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Ответ от сервера:', data);
+                        if (data.success) {
+                            var messageForm = document.getElementById('registrationError');
+                            messageForm.textContent = "Registration success!";
+                        }
+                    })
+                    .catch(error => {
+                        var messageForm = document.getElementById('registrationError');
+                        messageForm.textContent = "Registration failed";
+                        console.error('Ошибка при отправке запроса:', error);
+                    });
                 }
             });
     
@@ -194,8 +212,27 @@ function showContent(targetId) {
                 var loginPassword = document.getElementById("loginPassword").value;
                 var loginError = document.getElementById("loginError");
     
-                // Здесь можно добавить логику отправки данных на сервер для входа
-                // В данном примере просто показываем сообщение об успешном входе
+                var formData = {
+                    "username": loginUsername,
+                    "password": loginPassword
+                };
+                fetch(connectAPI+"/login", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Ответ от сервера:", data);
+                    if (data.success) {
+                        var messageForm = document.getElementById('loginError');
+                            messageForm.textContent = "Login success!";
+                    }
+                })
+                .catch(error => {
+                    var messageForm = document.getElementById('loginError');
+                        messageForm.textContent = "Login failed";
+                        console.error('Ошибка при отправке запроса:', error);
+                });
                 alert("Вход успешен!");
                 loginError.textContent = "";
             });

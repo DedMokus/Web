@@ -1,5 +1,6 @@
 from io import BytesIO
-from fastapi import FastAPI, UploadFile, File
+from pydantic import BaseModel
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,19 +10,18 @@ from processing import doPredicts
 import pandas as pd
 import os
 from contextlib import asynccontextmanager
-from db import database, metadata, engine
+from sqlalchemy.orm import sessionmaker
+from db import Base, metadata, engine, UserDB
 
 
-
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     database.connect()
-#     yield
-#     database.disconnect()
-
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    metadata.create_all(engine)
+    Base.metadata.create_all(engine)
+    yield
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(DBSessionMiddleware, db_url='postgresql://postgres:postgres@localhost/vebinar_db')
 
@@ -95,7 +95,52 @@ def sepData():
         pr["path"] = img_path
         pr["ID"] = group_name
         
-        
         predicts_imgs.append(pr)
     
     return predicts_imgs
+
+class User(BaseModel):
+    username: str
+    password: str
+
+def checkLogin(username: str, password: str) -> bool:
+    username = f"'{username}'"
+    sql_query = f'SELECT * FROM users WHERE "Username" = {username}'
+    print(sql_query)
+    data = pd.read_sql(sql=sql_query, con=engine)
+    print(data)
+    return 
+
+@app.post("/login")
+def login(user: User):
+    if not checkLogin(user.username, user.password):
+        raise HTTPException(status_code=401, detail="Неверные учетные данные")
+    return
+
+def checkRegister(username: str, password: str) -> bool:
+    Session = sessionmaker(engine)
+    session = Session()
+
+    username = f"'{username}'"
+    password = f"'{password}'"
+    sql_query = f'SELECT * FROM users WHERE "Username" = {username}'
+    data = pd.read_sql(sql=sql_query, con=engine)
+    if data.empty:
+        new_user = UserDB(Username=username, Password=password, IsAdmin=False)
+        session.add(new_user)
+        session.commit()
+    session.close()
+    return
+
+@app.post("/register")
+def register(user: User):
+    if not checkRegister(user.username, user.password):
+        raise HTTPException(status_code=401, detail="Такой пользователь уже существует")
+    return
+
+@app.get("/readdb")
+def readdb():
+    sql_query = '''SELECT * FROM users WHERE "Username" = 'string' '''
+    data = pd.read_sql(sql=sql_query, con=engine)
+    print(data)
+    return
