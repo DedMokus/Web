@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Upload</title>
-    <link href="static/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="node_modules/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="static/style.css" rel="stylesheet">
 </head>
 <body>
-    <script src="static/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
     <nav class="nav-box">
         <ul>
             <li>
@@ -24,7 +24,7 @@
                 <a href="#" onclick="showContent('sep-stat-block')">Cтатистика по вебинарам</a>
             </li>
             <li>
-                <a href="#" onclick="showContent('login-block')">Вход в аккаунт</a>
+                <a href="#" onclick="showContent('login-block')" id="login-button">Вход в аккаунт</a>
             </li>
         </ul>
     </nav>
@@ -37,60 +37,6 @@
         </div>
     </main>
 
-    <div id="myModal" class="modal" tabindex="-1">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title">Разметка времени</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <p>Modal body text goes here.</p>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
-    </div>
-        <div class="modal" id="login-block">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2>Регистрация</h2>
-                        <form class="form-control" action="/register" method="post">
-                            <input type="text" name="username" placeholder="Имя пользователя" required>
-                            <input type="password" name="password" placeholder="Пароль" required>
-                        </form>
-                        <button type="submit" class="btn-register">Зарегистрироваться</button>
-        
-                        <h2>Вход</h2>
-                        <form class="form-control" action="/login" method="post">
-                            <input type="text" name="username" placeholder="Имя пользователя" required>
-                            <input type="password" name="password" placeholder="Пароль" required>
-                        </form>
-                        <button type="submit" class="btn-login">Войти</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     <script src="static/script.js"></script>
-        <!--`const connectAPI = "http://127.0.0.1:8000";
-        const currentuserId = "none";
-
-        function showLogin(targetId) {
-            var blocks = document.querySelectorAll('.block');
-
-            blocks.forEach(function(block) {
-                block.style.display = "none";
-            });
-
-            var targetBlock = document.getElementById(targetId);
-            targetBlock.style.display = "block";
-        }
-            
-            
-        }-->
-
 </body>
 </html>

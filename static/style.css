@@ -60,8 +60,7 @@ main {
 	background-color: #fff;
 	padding: 20px;
 	border-radius: 8px;
-	box-shadow:
-0 0 10px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 #content h2 {
@@ -69,13 +68,12 @@ main {
 }
 
 #content img {
-	width: 100%;
+	width: 80%;
 	height: auto;
 	margin: 0 auto;
 	display: block;
 	border-radius: 10px;
-	box-shadow: 
-2px 2px 5px rgba(0, 0, 0, 0.2);
+	box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
 	border: 3px solid #2F8D46;
 }
 
@@ -85,8 +83,7 @@ form {
 	padding: 20px;
 	background-color: #f0f0f0;
 	border-radius: 8px;
-	box-shadow: 
-0 0 10px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 form label {
@@ -104,6 +101,15 @@ form textarea {
 	border-radius: 4px;
 }
 
+input {
+    width: 100%;
+	padding: 8px;
+	margin-bottom: 16px;
+	box-sizing: border-box;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
 form button {
 	background-color: #4caf50;
 	color: #fff;
@@ -112,7 +118,7 @@ form button {
 	border-radius: 4px;
 	cursor: pointer;
 	transition: 
-background-color 0.3s ease;
+	background-color 0.3s ease;
 }
 
 form button:hover {
@@ -135,3 +141,40 @@ button {
     cursor: pointer;
     font-size: 16px;
 }
+
+#carousel {
+    position: relative;
+  }
+  
+  #items {
+    position: relative;
+  }
+  
+  .nav-btn {
+    position: absolute;
+    top: 25%;
+    bottom: 0;
+    width: 50px;
+    height: 50px; /* Ширина стрелок */
+    background-color: rgba(0, 0, 0, 0.5); /* Цвет фона стрелок */
+    color: white; /* Цвет текста стрелок */
+    font-size: 24px; /* Размер шрифта стрелок */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .nav-btn:hover {
+    background-color: rgba(0, 0, 0, 0.8); /* Цвет фона стрелок при наведении */
+  }
+  
+  #prevBtn {
+    left: 0;
+  }
+  
+  #nextBtn {
+    right: 0;
+  }
+ 
