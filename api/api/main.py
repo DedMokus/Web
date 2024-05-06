@@ -1,19 +1,15 @@
 from io import BytesIO
-from pydantic import BaseModel
-from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
+from fastapi import FastAPI, UploadFile, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi_sqlalchemy import DBSessionMiddleware, db
+from fastapi_sqlalchemy import DBSessionMiddleware
 from bert_inference import preprocess_and_inference
 from processing import doPredicts
 import pandas as pd
 import os
-from contextlib import asynccontextmanager
 from sqlalchemy.orm import Session
-import crud, models, schemas
+import models
 from db import SessionLocal, engine
-from telegramNotifications import sendNotification
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -25,8 +21,6 @@ def get_db():
     finally:
         db.close()
 
-
-
 app = FastAPI()
 
 app.add_middleware(DBSessionMiddleware, db_url='postgresql://postgres:postgres@localhost/vebinar_db')
@@ -35,8 +29,6 @@ app.add_middleware(DBSessionMiddleware, db_url='postgresql://postgres:postgres@l
 #     Разные возможности у юзеров разного типа
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/templates", StaticFiles(directory="static"), name="templates")
-app.mount("/node_modules", StaticFiles(directory="node_modules"), name="node_modules")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -50,11 +42,11 @@ async def read_root():
     return HTMLResponse(content)
 
 @app.post("/upload")
-def upload(file: UploadFile):
+async def upload(file: UploadFile):
 
     print("File load start")
     #Считываем выгруженный файл
-    contents = file.file.read()
+    contents = await file.file.read()
     #Сохраняем данные как DataFrame
     data = BytesIO(contents)
     df = pd.read_csv(data)
@@ -64,7 +56,7 @@ def upload(file: UploadFile):
     return {"success": True}
 
 @app.get("/general-data")
-def generalData():
+async def generalData():
     #Создаем SQL запрос
     data = pd.read_sql_table(
         "messages",
@@ -86,8 +78,6 @@ def generalData():
                  "TaskComplete"]
     )
     
-    
-
     #Делаем выводы и сохраняем статистику
     predicts_imgs = {}
     img_path = "static/images/img_general_vebinar.jpg"
@@ -97,7 +87,7 @@ def generalData():
     return predicts_imgs
 
 @app.get("/sep-data/")
-def sepData():
+async def sepData():
     #Создаем SQL запрос
     data = pd.read_sql_table(
         "messages",
@@ -134,34 +124,8 @@ def sepData():
     
     return predicts_imgs
 
-@app.post("/login")
-def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.getUserByEmail(db, user.email)
-    
-    if not db_user:
-        raise HTTPException(status_code=400, detail="Неправильное имя пользователя или пароль")
-    if not crud.verifyPassword(db_user.password, user.password):
-        raise HTTPException(status_code=403, detail="Неправильное имя пользователя или пароль")
-    else:
-        requestUser = {'username': db_user.username,
-                   'email': db_user.email}
-        return {'success': True, "user": requestUser}
-
-@app.post("/register")
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
-    db_user = crud.getUserByEmail(db, user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Такой пользователь уже существует")
-    crud.createUser(db=db, user=user)
-    return {'success':True}
-
-@app.get("/readdb")
-def readdb(db: Session = Depends(get_db)):
-    data = crud.getMessages(db=db)
-    return data
-
 @app.get("/filter")
-def filter(need_class: str, id: int = None, db: Session = Depends(get_db)):
+async def filter(need_class: str, id: int = None, db: Session = Depends(get_db)):
 
     data = pd.read_sql_table(
         "messages",

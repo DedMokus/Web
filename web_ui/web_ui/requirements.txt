@@ -1,0 +1,7 @@
+fastapi[all]
+pydantic
+uvicorn
+requests
+jinja2
+python-multipart
+fastapi_sqlalchemy
