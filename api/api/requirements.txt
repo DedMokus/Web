@@ -1,7 +1,12 @@
-fastapi[all]
+fastapi
 pydantic
-uvicorn
-requests
-jinja2
+transformers
+torch
+tqdm
+telebot
+matplotlib
+passlib
 python-multipart
 fastapi_sqlalchemy
+pandas
+psycopg2

@@ -1,8 +1,9 @@
-FROM tiangolo/uvicorn-gunicorn::python3.11
+FROM tiangolo/uvicorn-gunicorn:python3.11
 
 COPY ./web_ui /app
 
 EXPOSE 8000
+EXPOSE 5432
 
 RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
 

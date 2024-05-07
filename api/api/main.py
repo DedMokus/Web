@@ -3,15 +3,17 @@ from fastapi import FastAPI, UploadFile, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi_sqlalchemy import DBSessionMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from bert_inference import preprocess_and_inference
 from processing import doPredicts
 import pandas as pd
 import os
 from sqlalchemy.orm import Session
 import models
+from models import Base
 from db import SessionLocal, engine
 
-models.Base.metadata.create_all(bind=engine)
+
 
 
 def get_db():
@@ -23,7 +25,19 @@ def get_db():
 
 app = FastAPI()
 
-app.add_middleware(DBSessionMiddleware, db_url='postgresql://postgres:postgres@localhost/vebinar_db')
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.on_event('startup')
+async def start():
+    Base.metadata.create_all(bind=engine)
+
+app.add_middleware(DBSessionMiddleware, db_url='postgresql://postgres:postgres@db/vebinar_db')
 
 #ToDo Сделать возможность отправлять и на проверку вебинары через телеграм
 #     Разные возможности у юзеров разного типа
@@ -46,13 +60,14 @@ async def upload(file: UploadFile):
 
     print("File load start")
     #Считываем выгруженный файл
-    contents = await file.file.read()
+    contents = file.file.read()
     #Сохраняем данные как DataFrame
     data = BytesIO(contents)
     df = pd.read_csv(data)
     data.close()
     file.file.close()
     preprocess_and_inference(df)
+    print("Load complete")
     return {"success": True}
 
 @app.get("/general-data")

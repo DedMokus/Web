@@ -1,11 +1,10 @@
 from sqlalchemy import (Column, Integer, MetaData, Table,
                         create_engine, TIMESTAMP, TEXT, Boolean, Float, String)
 
-from databases import Database
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = 'postgresql://postgres:postgres@localhost/vebinar_db'
+DATABASE_URL = 'postgresql://postgres:postgres@db/vebinar_db'
 
 engine = create_engine(DATABASE_URL, echo=False)
 

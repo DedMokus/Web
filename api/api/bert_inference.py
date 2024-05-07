@@ -20,46 +20,46 @@ candidates = ["Прощание", "Спасибо", "Досвидания", "П�
 
 # Группы кандидатов
 groups = {
-    "Polite": ["Прощание", "Спасибо", "Досвидания", "Пока", "До встречи", "Здравствуйте"],
+    "polite": ["Прощание", "Спасибо", "Досвидания", "Пока", "До встречи", "Здравствуйте"],
 
-    "TechProblems": ["Технические неполадки", "Не слышно", "Сломался микрофон", "Сломалось", "Лагает"],
+    "techproblems": ["Технические неполадки", "Не слышно", "Сломался микрофон", "Сломалось", "Лагает"],
 
-    "GoodExplain": ["Хорошее объяснение материла", "Теперь понял", "Понятно", "Спасибо за объяснение"],
+    "goodexplain": ["Хорошее объяснение материла", "Теперь понял", "Понятно", "Спасибо за объяснение"],
     
-    "BadExplain": ["Преподаватель плохо объяснил", "Повторите", "Можно ещё раз", "Не понял", "Сложный материал", "Сложный урок"],
+    "badexplain": ["Преподаватель плохо объяснил", "Повторите", "Можно ещё раз", "Не понял", "Сложный материал", "Сложный урок"],
 
-    "Help": ["Просьба о помощи", "Ссылка на сайт"],
+    "help": ["Просьба о помощи", "Ссылка на сайт"],
 
-    "Spam": ["Флуд, спам", "Реклама", "Спам", "Бессвязный набор букв"],
+    "spam": ["Флуд, спам", "Реклама", "Спам", "Бессвязный набор букв"],
 
-    "Conflict": ["Оскорбление или токсичное поведение", "Ругательство"],
+    "conflict": ["Оскорбление или токсичное поведение", "Ругательство"],
 
-    "Late": ["Кто-то опаздывает", "Опоздание", "Задерживается"], 
+    "late": ["Кто-то опаздывает", "Опоздание", "Задерживается"], 
     
-    "TaskComplete" : ["Готово", "Сделано", "Сдал", "Выполнил", "Код"]
+    "taskcomplete" : ["Готово", "Сделано", "Сдал", "Выполнил", "Код"]
 }
 
-SQLColumns = ["LessonID", "StartTime", "Message", "MessageTime", "TimeFromStart", "Polite", "TechProblems", "GoodExplain", "BadExplain", "Help", "Spam", "Conflict", "Late", "TaskComplete"]
+SQLColumns = ["lessonid", "starttime", "message", "messagetime", "timefromstart", "polite", "techproblems", "goodexplain", "badexplain", "help", "spam", "conflict", "late", "taskcomplete"]
 
 def preprocess_and_inference(train: pd.DataFrame):
     try:
         train.dropna(inplace=True)
-        train["LessonID"] = train["ID урока"].astype(int)
-        train['StartTime'] = pd.to_datetime(train['Дата старта урока'], utc=False, errors='coerce')
-        train['MessageTime'] = pd.to_datetime(train['Дата сообщения'], utc = False, errors='coerce')
+        train["lessonid"] = train["ID урока"].astype(int)
+        train['starttime'] = pd.to_datetime(train['Дата старта урока'], utc=False, errors='coerce')
+        train['messagetime'] = pd.to_datetime(train['Дата сообщения'], utc = False, errors='coerce')
         train.dropna(inplace=True)
-        train['TimeFromStart'] = ((train['MessageTime'] - train['StartTime']).dt.total_seconds() / 60).round(2)
-        train['Message'] = train["Текст сообщения"]
+        train['timefromstart'] = ((train['messagetime'] - train['starttime']).dt.total_seconds() / 60).round(2)
+        train['message'] = train["Текст сообщения"]
 
         group_probabilities = pd.DataFrame(0, index=range(len(train)), columns=groups.keys())
-        sample_train = train.iloc[:100].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
-        sample_dummy = group_probabilities.iloc[:100].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
+        sample_train = train.iloc[:10].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
+        sample_dummy = group_probabilities.iloc[:10].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
 
         # Классифицируем каждую запись в train и устанавливаем 1 для группы с наибольшей вероятностью
         merged_df = pd.concat([sample_train, sample_dummy], axis=1)
         merged_df = merged_df[SQLColumns]
 
-        for i, text in tqdm.tqdm(enumerate(merged_df['Message']), total=len(merged_df)):
+        for i, text in tqdm.tqdm(enumerate(merged_df['message']), total=len(merged_df)):
             classification = classifier(text, candidates)
             max_label = classification['labels'][0]  # Получаем самый вероятный класс
             for group, group_candidates in groups.items():

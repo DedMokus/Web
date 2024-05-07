@@ -1,4 +1,5 @@
 from sqlalchemy import Boolean, Integer, Float, TEXT, Column, String, DateTime
+from sqlalchemy.orm import relationship
 
 from db import Base
 

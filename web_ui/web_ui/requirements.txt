@@ -1,7 +1,6 @@
-fastapi[all]
-pydantic
-uvicorn
+fastapi
 requests
-jinja2
-python-multipart
+pydantic
 fastapi_sqlalchemy
+psycopg2
+passlib
