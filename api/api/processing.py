@@ -42,7 +42,7 @@ def doPredicts(data, path, title=None):
     colors = ["blue", "red", "black", "pink","magenta", "green", "grey", "yellow", "brown"]
     names = ["Вежливость", "Технические проблемы", "Хорошее объяснение материала", "Плохое объяснение материала", "Помощь и понимание", "Реклама и спам", "Оскорбления и конфликты", "Опоздание", "Выполнение задания"]
 
-    x = [list(data[data["Category"] == category]['TimeFromStart']) for category in col_check]
+    x = [list(data[data["Category"] == category]['timefromstart']) for category in col_check]
 
     plt.switch_backend("agg")
     fig, ax = plt.subplots(figsize=(20,15))

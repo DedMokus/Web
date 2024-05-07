@@ -51,7 +51,7 @@ def preprocess_and_inference(train: pd.DataFrame):
         train['timefromstart'] = ((train['messagetime'] - train['starttime']).dt.total_seconds() / 60).round(2)
         train['message'] = train["Текст сообщения"]
 
-        group_probabilities = pd.DataFrame(0, index=range(len(train)), columns=groups.keys())
+        group_probabilities = pd.DataFrame(False, index=range(len(train)), columns=groups.keys())
         sample_train = train.iloc[:10].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
         sample_dummy = group_probabilities.iloc[:10].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
 
@@ -64,9 +64,9 @@ def preprocess_and_inference(train: pd.DataFrame):
             max_label = classification['labels'][0]  # Получаем самый вероятный класс
             for group, group_candidates in groups.items():
                 if max_label in group_candidates:  # Проверяем, принадлежит ли класс кандидатам текущей группы
-                    merged_df.loc[i, group] = 1
+                    merged_df.loc[i, group] = True
 
-        merged_df.to_sql(name="messages", con=engine, if_exists="append", index=True, index_label="MessageID")
+        merged_df.to_sql(name="messages", con=engine, if_exists="append", index=True, index_label="messageid")
 
         text = f'''Загрузка и обработка файла размером {len(merged_df)} элементов завершена'''
 

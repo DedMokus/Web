@@ -76,21 +76,8 @@ async def generalData():
     data = pd.read_sql_table(
         "messages",
         con=engine,
-        columns=["MessageID", 
-                 "LessonID", 
-                 "StartTime", 
-                 "Message", 
-                 "MessageTime", 
-                 "TimeFromStart", 
-                 "Polite", 
-                 "TechProblems", 
-                 "GoodExplain", 
-                 "BadExplain", 
-                 "Help", 
-                 "Spam", 
-                 "Conflict", 
-                 "Late", 
-                 "TaskComplete"]
+        columns=["messageid","lessonid", "starttime", "message", "messagetime", "timefromstart", "polite", "techproblems", "goodexplain", "badexplain", "help", "spam", "conflict", "late", "taskcomplete"]
+
     )
     
     #Делаем выводы и сохраняем статистику
@@ -107,27 +94,13 @@ async def sepData():
     data = pd.read_sql_table(
         "messages",
         con=engine,
-        columns=["MessageID", 
-                 "LessonID", 
-                 "StartTime", 
-                 "Message", 
-                 "MessageTime", 
-                 "TimeFromStart", 
-                 "Polite", 
-                 "TechProblems", 
-                 "GoodExplain", 
-                 "BadExplain", 
-                 "Help", 
-                 "Spam", 
-                 "Conflict", 
-                 "Late", 
-                 "TaskComplete"]
+        columns=["messageid","lessonid", "starttime", "message", "messagetime", "timefromstart", "polite", "techproblems", "goodexplain", "badexplain", "help", "spam", "conflict", "late", "taskcomplete"]
     )
     
     #Делаем предикты для каждого вебинара
     predicts_imgs = []
-    vebin_IDs = data["LessonID"].unique()
-    for group_name, group_data in data.groupby("LessonID"):
+    vebin_IDs = data["lessonid"].unique()
+    for group_name, group_data in data.groupby("lessonid"):
         img_path = "static/images/img_" + str(group_name) + "_vebinar.jpg"
         preds = doPredicts(group_data, img_path, group_name)
         pr = {}
@@ -145,42 +118,15 @@ async def filter(need_class: str, id: int = None, db: Session = Depends(get_db))
     data = pd.read_sql_table(
         "messages",
         con=engine,
-        columns=["MessageID", 
-                 "LessonID", 
-                 "StartTime", 
-                 "Message", 
-                 "MessageTime", 
-                 "TimeFromStart", 
-                 "Polite", 
-                 "TechProblems", 
-                 "GoodExplain", 
-                 "BadExplain", 
-                 "Help", 
-                 "Spam", 
-                 "Conflict", 
-                 "Late", 
-                 "TaskComplete"]
+        columns=["messageid","lessonid", "starttime", "message", "messagetime", "timefromstart", "polite", "techproblems", "goodexplain", "badexplain", "help", "spam", "conflict", "late", "taskcomplete"]
     )
     if not id:
         filter = data[need_class] == 1
     else:
-        filter = (data[need_class] == 1) & (data["LessonID"] == id)
+        filter = (data[need_class] == 1) & (data["lessonid"] == id)
     filtered = data[filter]
-    filtered = filtered.drop(columns=["MessageID", 
-                                        "LessonID", 
-                                        "StartTime",
-                                        "TimeFromStart", 
-                                        "Polite", 
-                                        "TechProblems", 
-                                        "GoodExplain", 
-                                        "BadExplain", 
-                                        "Help", 
-                                        "Spam", 
-                                        "Conflict", 
-                                        "Late", 
-                                        "TaskComplete"
-                                      ])
-    filtered['MessageTime'] = filtered["MessageTime"].dt.strftime('%d/%m/%y %H:%M:%S')
+    filtered = filtered.drop(columns=["messageid","lessonid", "starttime", "message", "messagetime", "timefromstart", "polite", "techproblems", "goodexplain", "badexplain", "help", "spam", "conflict", "late", "taskcomplete"])
+    filtered['messagetime'] = filtered["messagetime"].dt.strftime('%d/%m/%y %H:%M:%S')
     filter_json = filtered.to_dict(orient='records')
 
     return filter_json
