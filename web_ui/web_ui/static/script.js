@@ -253,8 +253,6 @@ function showContent(targetId) {
                 username.textContent = currentUser['username'];
                 email.textContent = currentUser['email'];
 
-                var checkbox = document.getElementById('notificationCheckbox').value;
-
             }
             else {
                 contentDiv.innerHTML = "";
@@ -325,16 +323,18 @@ function showContent(targetId) {
                         .then(response => response.json())
                         .then(data => {
                             console.log('Ответ от сервера:', data);
+
                             if (data.success) {
                                 var messageForm = document.getElementById('registrationError');
-                                messageForm.textContent = "Registration success!";
+                                messageForm.textContent = "Успешная регистрация!";
                                 showContent("home");
                             } else {
                                 var messageForm = document.getElementById('registrationError');
-                                messageForm.textContent = "Registration failed";
+                                messageForm.textContent = "Такой пользователь уже существует";
                             }
                         })
                         .catch(error => {
+                            console.log(error);
                             var messageForm = document.getElementById('registrationError');
                             messageForm.textContent = "Registration failed";
                             console.error('Ошибка при отправке запроса:', error);
@@ -390,15 +390,15 @@ function showContent(targetId) {
 
         function createButtons(id = null) {
             const groupefewfs = {
-                "Вежливость": "Polite", 
-                "Технические проблемы": "TechProblems", 
-                "Хорошее объяснение материала": "GoodExplain", 
-                "Плохое объяснение материала": "BadExplain", 
-                "Помощь и понимание": "Help", 
-                "Реклама и спам": "Spam", 
-                "Оскорбления и конфликты": "Conflict", 
-                "Опоздание": "Late", 
-                "Выполнение задания": "TaskComplete"
+                "Вежливость": "polite", 
+                "Технические проблемы": "techproblems", 
+                "Хорошее объяснение материала": "goodexplain", 
+                "Плохое объяснение материала": "badexplain", 
+                "Помощь и понимание": "help", 
+                "Реклама и спам": "spam", 
+                "Оскорбления и конфликты": "conflict", 
+                "Опоздание": "late", 
+                "Выполнение задания": "taskcomplete"
             };
             const color_sheet = {
                 "Вежливость": '#0000CD',
@@ -471,8 +471,8 @@ function showContent(targetId) {
                                     var td1 = document.createElement("td");
                                     var td2 = document.createElement("td");
 
-                                    td1.textContent = roww['MessageTime'];
-                                    td2.textContent = roww['Message'];
+                                    td1.textContent = roww['messagetime'];
+                                    td2.textContent = roww['message'];
 
                                     tr.appendChild(td1);
                                     tr.appendChild(td2);

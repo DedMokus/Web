@@ -11,7 +11,7 @@ def doPredicts(data, path, title=None):
     else:
         title = f"Статистика по вебинару {title}"
 
-    print(data[col_check])
+
     data[col_check] = data[col_check].astype(int)
     data['count'] = data[col_check].sum(axis=1)
     

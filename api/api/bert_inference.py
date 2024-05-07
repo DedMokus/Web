@@ -61,7 +61,6 @@ def preprocess_and_inference(train: pd.DataFrame):
         group_probabilities = pd.DataFrame(frf,columns=groups.keys(),index=range(len(train)))
         sample_train = train.iloc[:50].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
         sample_dummy = group_probabilities.iloc[:50].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
-        print(sample_dummy)
 
         # Классифицируем каждую запись в train и устанавливаем 1 для группы с наибольшей вероятностью
         merged_df = pd.concat([sample_train, sample_dummy], axis=1)

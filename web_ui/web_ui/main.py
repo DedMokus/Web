@@ -30,7 +30,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+print(os.listdir("/var/www/app/shared"))
 
 app.add_middleware(DBSessionMiddleware, db_url='postgresql://postgres:postgres@db/vebinar_db')
 
@@ -77,9 +77,8 @@ async def sepData():
     req = requests.get(api_url)
 
     if req.status_code == 200:
-        #data = req.json()
-        print(req)
-        return req
+        data = req.json()
+        return data
 
 
 @app.post("/login")
@@ -87,9 +86,9 @@ async def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.getUserByEmail(db, user.email)
     
     if not db_user:
-        raise HTTPException(status_code=400, detail="Неправильное имя пользователя или пароль")
+        return {'success': False}
     if not crud.verifyPassword(db_user.password, user.password):
-        raise HTTPException(status_code=403, detail="Неправильное имя пользователя или пароль")
+        return {'success': False}
     else:
         requestUser = {'username': db_user.username,
                    'email': db_user.email}
@@ -99,14 +98,19 @@ async def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
 async def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.getUserByEmail(db, user.email)
     if db_user:
-        raise HTTPException(status_code=400, detail="Такой пользователь уже существует")
+        return {'success': False}
     crud.createUser(db=db, user=user)
     return {'success':True}
 
 
 @app.get("/filter")
 async def filter(need_class: str, id: int = None):
-    api_url = f"http://api:8001/filter?need_class={need_class}&id={id}"
+    need_class = need_class.lower()
+    if not id:
+        api_url = f"http://api:8001/filter?need_class={need_class}"
+    else:
+        api_url = f"http://api:8001/filter?need_class={need_class}&id={id}"
+    print(api_url)
 
     req = requests.get(api_url)
 
