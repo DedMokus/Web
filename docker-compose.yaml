@@ -19,6 +19,8 @@ services:
       - "8001:8001"
     links:
       - db
+    volumes:
+      - ./shared:/var/www/app/shared
     depends_on:
       - db
 
@@ -30,7 +32,10 @@ services:
     links:
       - api
       - db
+    volumes:
+      - ./shared:/var/www/app/shared
     depends_on:
       - api
 
-
+volumes:
+ shared:

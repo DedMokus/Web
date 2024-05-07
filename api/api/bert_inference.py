@@ -1,13 +1,14 @@
 import pandas as pd
-from transformers import pipeline
-import torch
+#from transformers import pipeline
+#import torch
 import tqdm
 from db import engine
 from telegramNotifications import sendNotification
+import numpy as np
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-classifier = pipeline("zero-shot-classification",
-                      model="MoritzLaurer/mDeBERTa-v3-base-mnli-xnli", device = device)
+#device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#classifier = pipeline("zero-shot-classification",
+#                      model="MoritzLaurer/mDeBERTa-v3-base-mnli-xnli", device = device)
 
 candidates = ["Прощание", "Спасибо", "Досвидания", "Пока", "До встречи", "Здравствуйте", 
               "Технические неполадки", "Не слышно", "Сломался микрофон", "Сломалось", "Лагает", 
@@ -51,22 +52,29 @@ def preprocess_and_inference(train: pd.DataFrame):
         train['timefromstart'] = ((train['messagetime'] - train['starttime']).dt.total_seconds() / 60).round(2)
         train['message'] = train["Текст сообщения"]
 
-        group_probabilities = pd.DataFrame(False, index=range(len(train)), columns=groups.keys())
-        sample_train = train.iloc[:10].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
-        sample_dummy = group_probabilities.iloc[:10].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
+        
+        group_probabilities = pd.DataFrame(0, index=range(len(train)), columns=groups.keys())
+
+        frf=  np.random.choice([True, False], size=group_probabilities.shape)    
+
+
+        group_probabilities = pd.DataFrame(frf,columns=groups.keys(),index=range(len(train)))
+        sample_train = train.iloc[:50].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
+        sample_dummy = group_probabilities.iloc[:50].reset_index(drop=True)  # Сбрасываем индексы и удаляем старые
+        print(sample_dummy)
 
         # Классифицируем каждую запись в train и устанавливаем 1 для группы с наибольшей вероятностью
         merged_df = pd.concat([sample_train, sample_dummy], axis=1)
         merged_df = merged_df[SQLColumns]
 
-        for i, text in tqdm.tqdm(enumerate(merged_df['message']), total=len(merged_df)):
-            classification = classifier(text, candidates)
-            max_label = classification['labels'][0]  # Получаем самый вероятный класс
-            for group, group_candidates in groups.items():
-                if max_label in group_candidates:  # Проверяем, принадлежит ли класс кандидатам текущей группы
-                    merged_df.loc[i, group] = True
+        # #for i, text in tqdm.tqdm(enumerate(merged_df['message']), total=len(merged_df)):
+        #     #classification = classifier(text, candidates)
+        #     3max_label = classification['labels'][0]  # Получаем самый вероятный класс
+        #     for group, group_candidates in groups.items():
+        #         if max_label in group_candidates:  # Проверяем, принадлежит ли класс кандидатам текущей группы
+        #             merged_df.loc[i, group] = True
 
-        merged_df.to_sql(name="messages", con=engine, if_exists="append", index=True, index_label="messageid")
+        merged_df.to_sql(name="messages", con=engine, if_exists="replace", index=True, index_label="messageid")
 
         text = f'''Загрузка и обработка файла размером {len(merged_df)} элементов завершена'''
 

@@ -7,6 +7,7 @@ import requests
 from sqlalchemy.orm import Session
 import crud, schemas
 from db import SessionLocal
+import os
 
 
 
@@ -34,6 +35,7 @@ app.add_middleware(
 app.add_middleware(DBSessionMiddleware, db_url='postgresql://postgres:postgres@db/vebinar_db')
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount('/shared', StaticFiles(directory='/var/www/app/shared'), name='shared')
 app.mount("/node_modules", StaticFiles(directory="node_modules"), name="node_modules")
 
 

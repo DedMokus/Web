@@ -1,7 +1,5 @@
 fastapi
 pydantic
-transformers
-torch
 tqdm
 telebot
 matplotlib
@@ -10,3 +8,4 @@ python-multipart
 fastapi_sqlalchemy
 pandas
 psycopg2
+numpy

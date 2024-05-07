@@ -11,6 +11,8 @@ def doPredicts(data, path, title=None):
     else:
         title = f"Статистика по вебинару {title}"
 
+    print(data[col_check])
+    data[col_check] = data[col_check].astype(int)
     data['count'] = data[col_check].sum(axis=1)
     
     categories = pd.DataFrame({'Category': data[col_check].apply(lambda row: row.idxmax(), axis=1)})

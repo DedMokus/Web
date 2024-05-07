@@ -23,6 +23,8 @@ def get_db():
     finally:
         db.close()
 
+print(os.listdir('/'))
+
 app = FastAPI()
 
 app.add_middleware(
@@ -33,6 +35,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+os.chdir("/var/www/app/shared/images")
+
 @app.on_event('startup')
 async def start():
     Base.metadata.create_all(bind=engine)
@@ -42,7 +46,7 @@ app.add_middleware(DBSessionMiddleware, db_url='postgresql://postgres:postgres@d
 #ToDo Сделать возможность отправлять и на проверку вебинары через телеграм
 #     Разные возможности у юзеров разного типа
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount('/shared', StaticFiles(directory='/var/www/app/shared'), name='shared')
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -82,7 +86,7 @@ async def generalData():
     
     #Делаем выводы и сохраняем статистику
     predicts_imgs = {}
-    img_path = "static/images/img_general_vebinar.jpg"
+    img_path = "/var/www/app/shared/images/img_general_vebinar.jpg"
     preds = doPredicts(data, img_path)
     predicts_imgs["data"] = preds
     predicts_imgs["path"] = img_path 
@@ -101,7 +105,7 @@ async def sepData():
     predicts_imgs = []
     vebin_IDs = data["lessonid"].unique()
     for group_name, group_data in data.groupby("lessonid"):
-        img_path = "static/images/img_" + str(group_name) + "_vebinar.jpg"
+        img_path = "/var/www/app/shared/images/img_" + str(group_name) + "_vebinar.jpg"
         preds = doPredicts(group_data, img_path, group_name)
         pr = {}
         pr["data"] = preds
